@@ -1,0 +1,22 @@
+version: '2'
+services:
+  db:
+    image: quiz-api-db
+    container_name: quiz-api-db
+    build: db
+    environment:
+      MYSQL_ROOT_PASSWORD: quiz-password
+      TZ: "UTC"
+    ports:
+      - "127.0.0.1:3306:3306"
+  api-server:
+    image: quiz-api-server
+    container_name: quiz-api-server
+    build:
+      context: ../
+      dockerfile: ./build/quiz-api/Dockerfile
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      - db
+    tty: true
