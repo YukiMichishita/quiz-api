@@ -1,32 +1,22 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-	"quiz-api/model/entity"
+	"quiz-api/controller"
+	"quiz-api/model"
 
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	migrate()
-	server := http.Server{
-		Addr: ":8080",
-	}
-	//http.HandleFunc("/todos/", ro.HandleTodosRequest)
-	server.ListenAndServe()
-}
+	r := gin.Default()
 
-func migrate() {
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8",
-		"root", "quiz-password", "quiz-api-db:3306", "quiz",
-	)
-	db, err := gorm.Open(mysql.Open(dataSourceName), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
+	// Connect to database
+	model.ConnectDatabase()
 
-	// Migrate the schema
-	db.AutoMigrate(&entity.User{}, &entity.Quiz{}, &entity.QuizCollectionHeader{}, &entity.QuizCollectionBody{}, &entity.Tag{}, &entity.ScoreHeader{}, &entity.ScoreBody{})
+	quizController := controller.NewQuizController()
+	// Routes
+	r.GET("/quizes", quizController.GetAll)
+
+	// Run the server
+	r.Run()
 }
