@@ -8,52 +8,55 @@ import (
 )
 
 type controller interface {
-	GetAll(c *gin.Context)
-	GetById(c *gin.Context, id uint)
-	Post(c *gin.Context)
-	Put(c *gin.Context, id uint)
-	Delete(c *gin.Context, id uint)
+	GetAll(target_model interface{}) gin.HandlerFunc
+	GetById(c *gin.Context, target_model interface{}, id uint)
+	Post(c *gin.Context, target_model interface{})
+	Put(c *gin.Context, target_model interface{}, id uint)
+	Delete(c *gin.Context, target_model interface{}, id uint)
 }
 
 type Controller struct {
-	target_model []model.Model
 }
 
-func NewController(target_model []model.Model) controller {
-	return &Controller{target_model}
+func NewController() controller {
+	return &Controller{}
 }
 
-func (controller *Controller) GetAll(c *gin.Context) {
-	var data []model.Model
-	copy(data, controller.target_model)
-	model.DB.Find(&data)
-	c.JSON(http.StatusOK, gin.H{"data": data})
+func getModelSlice(target_model interface{}) interface{} {
+	switch target_model.(type) {
+	case model.Quiz:
+		return []model.Quiz{}
+	case model.QuizCollectionHeader:
+		return []model.QuizCollectionHeader{}
+	default:
+		return nil
+	}
 }
 
-func (controller *Controller) GetById(c *gin.Context, id uint) {
-	var data []model.Model
-	copy(data, controller.target_model)
-	model.DB.Find(&data, id)
-	c.JSON(http.StatusOK, gin.H{"data": data})
+func (controller *Controller) GetAll(target_model interface{}) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		data := getModelSlice(target_model)
+		model.DB.Find(&data)
+		c.JSON(http.StatusOK, gin.H{"data": target_model})
+	}
 }
 
-func (controller *Controller) Post(c *gin.Context) {
-	var data []model.Model
-	copy(data, controller.target_model)
-	model.DB.Find(&data)
-	c.JSON(http.StatusOK, gin.H{"data": data})
+func (controller *Controller) GetById(c *gin.Context, target_model interface{}, id uint) {
+	model.DB.Find(target_model)
+	c.JSON(http.StatusOK, gin.H{"data": target_model})
 }
 
-func (controller *Controller) Put(c *gin.Context, id uint) {
-	var data []model.Model
-	copy(data, controller.target_model)
-	model.DB.Find(&data, id)
-	c.JSON(http.StatusOK, gin.H{"data": data})
+func (controller *Controller) Post(c *gin.Context, target_model interface{}) {
+	model.DB.Find(target_model)
+	c.JSON(http.StatusOK, gin.H{"data": target_model})
 }
 
-func (controller *Controller) Delete(c *gin.Context, id uint) {
-	var data []model.Model
-	copy(data, controller.target_model)
-	model.DB.Find(&data, id)
-	c.JSON(http.StatusOK, gin.H{"data": data})
+func (controller *Controller) Put(c *gin.Context, target_model interface{}, id uint) {
+	model.DB.Find(target_model)
+	c.JSON(http.StatusOK, gin.H{"data": target_model})
+}
+
+func (controller *Controller) Delete(c *gin.Context, target_model interface{}, id uint) {
+	model.DB.Find(target_model)
+	c.JSON(http.StatusOK, gin.H{"data": target_model})
 }

@@ -13,9 +13,9 @@ func main() {
 	// Connect to database
 	model.ConnectDatabase()
 
-	quizController := controller.NewQuizController()
+	generalController := controller.NewController()
 	// Routes
-	r.GET("/quizes", quizController.GetAll)
+	r.GET("/quizes", generalController.GetAll(model.Quiz{}))
 
 	// Run the server
 	r.Run()
